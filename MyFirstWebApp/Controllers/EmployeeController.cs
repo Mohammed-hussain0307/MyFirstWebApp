@@ -1,4 +1,4 @@
-﻿using MyFirstWebApp.DataAccess;
+using MyFirstWebApp.DataAccess;
 using MyFirstWebApp.Models;
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,22 @@ namespace MyFirstWebApp.Controllers
         // GET: Employee/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            try
+            {
+                var employee = employeeDataAccess.EditEmployee(id).FirstOrDefault();
+
+                if (employee == null)
+                {
+                    TempData["ErrorMessage"] = "Employee not available with ID " + id.ToString();
+                    return RedirectToAction("Index");
+                }
+                return View(employee);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View();
+            }
         }
 
         // GET: Employee/Create
@@ -64,42 +79,72 @@ namespace MyFirstWebApp.Controllers
         // GET: Employee/Edit/5
         public ActionResult Edit(int id)
         {
-            var employee = employeeDataAccess.EditEmployee(id);
+            try {
+                var employee = employeeDataAccess.EditEmployee(id).FirstOrDefault();
 
-            if (employee == null)
-            {
-                TempData["InfoMessage"] = "Product not available with ID " + id.ToString();
-                return RedirectToAction("Index");
+                if (employee == null)
+                {
+                    TempData["ErrorMessage"] = "Employee not available with ID " + id.ToString();
+                    return RedirectToAction("Index");
+                }
+                return View(employee);
             }
-            return View(employee);
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View();
+            }
         }
 
         // POST: Employee/Edit/5
         [HttpPost, ActionName("Edit")]
         public ActionResult Update(EmployeeModel employeeModel)
         {
-            if (ModelState.IsValid)
+            try
             {
-                bool isUpdate = employeeDataAccess.UpdateEmployee(employeeModel);
+                int id = 0;
 
-                if (isUpdate)
+                if (ModelState.IsValid)
                 {
-                    TempData["Updated"] = "Employee detail updated successfully";
+                    id = employeeDataAccess.UpdateEmployee(employeeModel);
+
+                    if (id > 0)
+                    {
+                        TempData["SuccessMessage"] = "Employee details updated successfully.";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Unable to update the Employee.";
+                    }
                 }
-                else
-                {
-                    TempData["Failed"] = "Cant update the employee detail";
-                }
+                return RedirectToAction("Index");
             }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
                 return View();
-            
+            }            
         }
 
         // GET: Employee/Delete/5
         public ActionResult Delete(int id)
         {
-            employeeDataAccess.DeleteEmployee(id);
-            return View();
+            try
+            {
+                var employee = employeeDataAccess.EditEmployee(id).FirstOrDefault();
+
+                if (employee == null)
+                {
+                    TempData["ErrorMessage"] = "Employee details not available with the employee Id : " + id;
+                    return RedirectToAction("Index");
+                }
+                return View(employee);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View();
+            }
         }
 
         // POST: Employee/Delete/5
@@ -108,12 +153,26 @@ namespace MyFirstWebApp.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
+                int employee = 0;
 
+                if (ModelState.IsValid)
+                {
+                    employee = employeeDataAccess.DeleteEmployee(id);
+
+                    if (employee > 0)
+                    {
+                        TempData["SuccessMessage"] = "Employee detail deleted successfully.";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Unable to delete the employee detail.";
+                    }
+                }
                 return RedirectToAction("Index");
             }
-            catch
+            catch (Exception ex)
             {
+                TempData["ErrorMessage"] = ex.Message;
                 return View();
             }
         }
