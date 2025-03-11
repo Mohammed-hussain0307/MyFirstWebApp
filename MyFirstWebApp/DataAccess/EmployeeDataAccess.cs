@@ -1,4 +1,4 @@
-﻿using MyFirstWebApp.Models;
+using MyFirstWebApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -97,9 +97,10 @@ namespace MyFirstWebApp.DataAccess
 		}
 
 		//update employee detail
-        public bool UpdateEmployee(EmployeeModel employeeModel)
+        public int UpdateEmployee(EmployeeModel employeeModel)
         {
             int check = 0;
+
             using (SqlConnection sqlConnection = new SqlConnection(connection))
             {
                 SqlCommand sqlCommand = new SqlCommand("SPU_Employee", sqlConnection);
@@ -108,32 +109,29 @@ namespace MyFirstWebApp.DataAccess
                 sqlCommand.Parameters.AddWithValue("@EmployeeName", employeeModel.EmployeeName);
                 sqlCommand.Parameters.AddWithValue("@Designation", employeeModel.Designation);
                 sqlCommand.Parameters.AddWithValue("@Salary", employeeModel.Salary);
+
                 sqlConnection.Open();
                 check = sqlCommand.ExecuteNonQuery();
                 sqlConnection.Close();
             }
-            if (check > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+			return check;
         }
 
 		//Delete employee
-		public void DeleteEmployee(int id)
+		public int DeleteEmployee(int id)
 		{
+			int check = 0;
 			using(SqlConnection sqlConnection = new SqlConnection(connection))
 			{
 				SqlCommand sqlCommand = new SqlCommand("SPD_Employee", sqlConnection);
 				sqlCommand.CommandType = CommandType.StoredProcedure;
 				sqlCommand.Parameters.AddWithValue("@EmployeeId", id);
+
 				sqlConnection.Open();
-				sqlCommand.ExecuteNonQuery();
+				check = sqlCommand.ExecuteNonQuery();
 				sqlConnection.Close();
 			}
+			return check;
 		}
     }
 }
